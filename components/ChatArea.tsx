@@ -316,7 +316,7 @@ export default function ChatConversationPage() {
     <div className="flex items-center w-full gap-4">
 
       <button className="text-xl text-gray-500">
-        📎
+       <Image src="/attached.svg" width={20} height={20} alt="Emoji" />
       </button>
 
       <input

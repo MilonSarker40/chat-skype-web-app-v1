@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { use, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useFriendStore } from "@/store/friendStore"
 import { useGlobalFriendStore } from "@/store/globalFriendStore"
@@ -21,6 +21,10 @@ export default function Sidebar() {
     fetchFriends,
     setActiveChat,
     activeChat,
+    incomingRequests,
+    setIncomingRequests,
+    outCommingRequests,
+    setOutCommingRequests
   } = useFriendStore()
 
   const {
@@ -33,6 +37,14 @@ export default function Sidebar() {
 
   const [search, setSearch] = useState("")
   const [showSearch, setShowSearch] = useState(false)
+
+  useEffect(()=>{
+  if (!token) return
+
+  setIncomingRequests()
+  setOutCommingRequests()
+
+  },[token])
 
   useEffect(() => {
 
@@ -117,7 +129,7 @@ export default function Sidebar() {
           }}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder="Search users..."
-          className="w-full h-[44px] bg-[#f3f4f6] rounded-xl px-4 text-sm outline-none"
+          className="w-full h-[44px] bg-[#f3f4f6] rounded-xl px-4 text-sm outline-none text-gray-500"
         />
 
         {showSearch && (
@@ -153,7 +165,7 @@ export default function Sidebar() {
 
                   <div>
 
-                    <p className="text-sm font-semibold">
+                    <p className="text-sm font-semibold text-gray-600">
                       {user.name}
                     </p>
 
@@ -240,11 +252,11 @@ export default function Sidebar() {
           All
         </button>
 
-        <button className="px-4 py-1.5 text-sm rounded-full bg-gray-200">
+        <button className="px-4 py-1.5 text-sm rounded-full bg-gray-400">
           Unread
         </button>
 
-        <button className="px-4 py-1.5 text-sm rounded-full bg-gray-200">
+        <button className="px-4 py-1.5 text-sm rounded-full bg-gray-400">
           Groups
         </button>
 
@@ -261,6 +273,47 @@ export default function Sidebar() {
 
         <div className="text-center text-sm text-gray-400 py-10">
           No friends yet
+        </div>
+
+      )}
+
+      {incomingRequests.length > 0 && (
+
+        <div className="mb-6">
+
+          <p className="text-xs text-gray-400 mb-2">
+            Incoming Requests
+          </p>
+
+          {incomingRequests.map((friend) => (
+
+            <div
+              key={friend.id}
+              onClick={() => acceptRequest(friend.email)}
+              className={`flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition hover:bg-[#f3f0eb]`}
+            >
+
+              <img
+                src={`https://ui-avatars.com/api/?name=${friend.name}`}
+                className="w-[36px] h-[36px] rounded-full"
+              />
+
+              <div>
+
+                <p className="text-sm font-semibold text-gray-500">
+                  {friend.name}
+                </p>
+
+                <p className="text-xs text-gray-400">
+                  Accept
+                </p>
+
+              </div>
+
+            </div>
+
+          ))}
+
         </div>
 
       )}
@@ -290,7 +343,7 @@ export default function Sidebar() {
 
           <div>
 
-            <p className="text-sm font-semibold">
+            <p className="text-sm font-semibold text-gray-500">
               {friend.name}
             </p>
 
