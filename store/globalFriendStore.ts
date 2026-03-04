@@ -9,6 +9,7 @@ interface User {
   isFriend: boolean
   isRequestSent: boolean
   isIncomingRequest: boolean
+  id: string
 }
 
 interface State {

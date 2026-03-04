@@ -6,6 +6,7 @@ import { api } from "@/lib/axios"
 export interface Friend {
   email: string
   name: string
+  id: string
 }
 
 interface State {

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FiChevronLeft, FiSend } from "react-icons/fi";
 import { useChatStore } from "@/store/chat.store";
 import { useAuthStore } from "@/store/authStore";
+import Image from "next/image";
 
 function formatTime(date: number) {
   return new Date(date).toLocaleTimeString([], {
@@ -213,102 +214,129 @@ export default function ChatConversationPage() {
 
   return (
 
-    <div className="max-w-[479px] mx-auto h-screen flex flex-col bg-[#071F36] text-white relative">
+  <div className="flex flex-col h-full bg-[#f5f5f5]">
 
-      {/* HEADER */}
-      <div className="fixed top-0 left-0 right-0 max-w-[479px] mx-auto bg-[#071F36] z-20 px-4 pt-6 pb-4 border-b border-white/10 flex justify-between items-center">
+  {/* HEADER */}
+  <div className="h-[70px] px-6 flex items-center justify-between border-b bg-white">
 
-        <div className="flex items-center gap-1 cursor-pointer">
+    <div className="flex items-center gap-3">
 
-          <button onClick={() => router.back()}>
-            <FiChevronLeft size={24} />
-          </button>
-
-          <h2 className="text-lg font-semibold">
-            {chatPartner?.name || "Chat"}
-          </h2>
-
-        </div>
-
-        <img
-          src={
-            chatPartner?.image
-              ? `${process.env.NEXT_PUBLIC_API_URL}${chatPartner.image}`
-              : "/images/profile-img.png"
-          }
-          alt="avatar"
-          className="rounded-full w-9 h-9 object-cover"
-        />
-
+      <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center">
+       <Image src="/icons/avater.png"
+       width={40}
+       height={40}
+       alt="Avatar"
+       className="rounded-lg"
+       />
       </div>
 
+      <div>
+        <p className="font-semibold text-gray-800">
+          {chatPartner?.name || "Chat"}
+        </p>
 
-      {/* MESSAGES */}
-      <div className="flex-1 overflow-y-auto px-4 pt-[90px] pb-[120px] space-y-4">
-
-        {chatMessages.map((m) => {
-
-          const isMe = m.from === myId;
-
-          return (
-
-            <div
-              key={m.id}
-              className={`flex ${isMe ? "justify-end" : "justify-start"}`}
-            >
-
-              <div className="max-w-[75%]">
-
-                <div
-                  className={`px-4 py-3 rounded-2xl ${
-                    isMe
-                      ? "bg-[#244B6B] rounded-br-none"
-                      : "bg-[#1E3A55] rounded-bl-none"
-                  }`}
-                >
-                  {m.text}
-                </div>
-
-                <div
-                  className={`text-[10px] text-gray-400 mt-1 ${
-                    isMe ? "text-right" : "text-left"
-                  }`}
-                >
-                  {formatTime(m.createdAt)}
-                </div>
-
-              </div>
-
-            </div>
-
-          );
-
-        })}
-
-        <div ref={bottomRef} />
-
-      </div>
-
-
-      {/* INPUT */}
-      <div className="fixed bottom-10 left-0 right-0 max-w-[479px] mx-auto bg-[#071F36] border-t border-white/10 px-4 pt-6 pb-14 flex items-center gap-3">
-
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Type a message..."
-          className="flex-1 bg-[#17324B] rounded-full px-4 py-3 outline-none text-sm"
-        />
-
-        <button
-          onClick={sendMessage}
-          className="bg-[#2E9BD3] p-3 rounded-full hover:bg-[#2589bd] transition"
-        >
-          <FiSend size={18} />
-        </button>
-
+        <p className="text-xs text-gray-500">
+          Online
+        </p>
       </div>
 
     </div>
+
+    <div className="flex items-center gap-6 text-gray-600 text-lg">
+
+      <span><Image src="/call.svg" width={20} height={20} alt="Phone" /></span>
+      <span><Image src="/Video.svg" width={20} height={20} alt="Video Call" /></span>
+      {/* <span>🔍</span>
+      <span>⋮</span> */}
+
+    </div>
+
+  </div>
+
+
+  {/* MESSAGES */}
+  <div className="flex-1 overflow-y-auto px-10 py-6 space-y-6">
+
+    {chatMessages.map((m) => {
+
+      const isMe = m.from === myId;
+
+      return (
+
+        <div
+          key={m.id}
+          className={`flex items-end gap-3 ${
+            isMe ? "justify-end" : "justify-start"
+          }`}
+        >
+
+          {!isMe && (
+            <img
+              src="/icons/avater.png"
+              className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center"
+            />
+          )}
+
+          <div
+            className={`max-w-[420px] px-5 py-3 rounded-2xl text-sm ${
+              isMe
+                ? "bg-orange-500 text-white rounded-br-md"
+                : "bg-gray-200 text-gray-800 rounded-bl-md"
+            }`}
+          >
+
+            {m.text}
+
+            <div
+              className={`text-[11px] mt-1 ${
+                isMe
+                  ? "text-orange-100 text-right"
+                  : "text-gray-500"
+              }`}
+            >
+              {formatTime(m.createdAt)}
+            </div>
+
+          </div>
+
+        </div>
+
+      );
+
+    })}
+
+    <div ref={bottomRef} />
+
+  </div>
+
+
+  {/* INPUT BAR */}
+  <div className="h-[80px] px-8 flex items-center border-t bg-white">
+
+    <div className="flex items-center w-full gap-4">
+
+      <button className="text-xl text-gray-500">
+        📎
+      </button>
+
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Type a message"
+        className="relative flex-1 border-2 border-gray-300 rounded-2xl px-6 py-3 outline-none text-sm text-black"
+      />
+
+      <button
+        onClick={sendMessage}
+        className="absolute right-8 w-11 h-11 flex items-center justify-center rounded-full text-white"
+      >
+        <span><Image src="/sent.svg" width={20} height={20} alt="Send" /></span>
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
   );
 }

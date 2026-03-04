@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useFriendStore } from "@/store/friendStore"
 import { useGlobalFriendStore } from "@/store/globalFriendStore"
@@ -10,6 +10,7 @@ import { useChatStore } from "@/store/chat.store"
 export default function Sidebar() {
 
   const router = useRouter()
+  const searchRef = useRef<HTMLDivElement>(null)
 
   const token = useAuthStore((s) => s.token)
 
@@ -32,6 +33,27 @@ export default function Sidebar() {
 
   const [search, setSearch] = useState("")
   const [showSearch, setShowSearch] = useState(false)
+
+  useEffect(() => {
+
+  function handleClickOutside(event: MouseEvent) {
+
+    if (
+      searchRef.current &&
+      !searchRef.current.contains(event.target as Node)
+    ) {
+      setShowSearch(false)
+    }
+
+  }
+
+  document.addEventListener("mousedown", handleClickOutside)
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside)
+  }
+
+}, [])
 
   /* =========================
      FETCH FRIENDS
@@ -85,7 +107,7 @@ export default function Sidebar() {
 
 
       {/* SEARCH */}
-      <div className="mb-6 relative">
+      <div ref={searchRef} className="mb-6 relative">
 
         <input
           value={search}
