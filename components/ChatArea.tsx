@@ -14,28 +14,17 @@ function formatTime(date: number) {
 }
 
 export default function ChatConversationPage() {
+
   const params = useParams();
   const router = useRouter();
   const userid = params.id as string;
 
-  // const [token, setToken] = useState<string | null>(null)
-
-  console.log("USER id ---- ", userid)
-
   const token = useAuthStore((s) => s.token);
-
-  // useEffect(()=>{
-  //  const token = localStorage.getItem('token')
-  //  setToken(token)
-  // },[])
-
-  console.log("Token ---->", token)
 
   const {
     messages,
     setHistory,
     addMessage,
-    connectSocket,
     ws,
     friends,
     setFriends,
@@ -50,28 +39,35 @@ export default function ChatConversationPage() {
      MY ID FROM TOKEN
   ============================ */
   const myId = useMemo(() => {
+
     if (!token) return "";
+
     try {
       return JSON.parse(atob(token.split(".")[1])).userId;
     } catch {
       return "";
     }
+
   }, [token]);
 
   /* ===========================
      FIND CHAT PARTNER
   ============================ */
   const chatPartner = useMemo(() => {
+
     return friends.find((f) => f.id === userid);
+
   }, [friends, userid]);
 
   /* ===========================
-     FETCH FRIENDS (Refresh Safe)
+     FETCH FRIENDS (fallback)
   ============================ */
   useEffect(() => {
+
     if (!token) return;
 
     async function fetchFriends() {
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/users/my-friends/skype`,
         {
@@ -83,56 +79,71 @@ export default function ChatConversationPage() {
 
       const data = await res.json();
 
-      console.log("Friend data:  ", data)
-
       if (res.ok) {
         setFriends(data.friends);
       }
+
     }
 
-    fetchFriends();
-  }, [token, setFriends]);
+    if (friends.length === 0) {
+      fetchFriends();
+    }
+
+  }, [token, setFriends, friends.length]);
+
+
 
   /* ===========================
-     CONNECT SOCKET
+     SUBSCRIBE CHAT
   ============================ */
   useEffect(() => {
-    if (token) connectSocket(token);
-  }, [token, connectSocket]);
 
-  /* ===========================
-     SUBSCRIBE TO CHAT
-  ============================ */
-  useEffect(() => {
     if (!ws || !userid) return;
 
     const subscribe = () => {
+
       ws.send(
         JSON.stringify({
           type: "SUBSCRIBE_CHAT",
           with: userid,
         })
       );
+
     };
 
     if (ws.readyState === WebSocket.OPEN) {
       subscribe();
+    } else {
+      ws.addEventListener("open", subscribe);
     }
 
-    ws.addEventListener("open", subscribe);
-
     return () => {
+
       ws.removeEventListener("open", subscribe);
+
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(
+          JSON.stringify({
+            type: "UNSUBSCRIBE_CHAT",
+            with: userid,
+          })
+        );
+      }
+
     };
+
   }, [ws, userid]);
+
 
   /* ===========================
      LOAD HISTORY
   ============================ */
   useEffect(() => {
+
     if (!userid || !token) return;
 
     async function loadHistory() {
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/chat/history/skype?with=${userid}`,
         {
@@ -147,22 +158,31 @@ export default function ChatConversationPage() {
       if (Array.isArray(data)) {
         setHistory(userid, data);
       }
+
     }
 
     loadHistory();
+
   }, [userid, token, setHistory]);
+
 
   /* ===========================
      AUTO SCROLL
   ============================ */
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+
   }, [chatMessages]);
+
 
   /* ===========================
      SEND MESSAGE
   ============================ */
   async function sendMessage() {
+
     if (!text.trim() || !token) return;
 
     const res = await fetch(
@@ -183,18 +203,23 @@ export default function ChatConversationPage() {
     const data = await res.json();
 
     if (res.ok) {
+
       addMessage(userid, data);
       setText("");
+
     }
+
   }
 
   return (
+
     <div className="max-w-[479px] mx-auto h-screen flex flex-col bg-[#071F36] text-white relative">
 
-      {/* ================= HEADER ================= */}
+      {/* HEADER */}
       <div className="fixed top-0 left-0 right-0 max-w-[479px] mx-auto bg-[#071F36] z-20 px-4 pt-6 pb-4 border-b border-white/10 flex justify-between items-center">
 
         <div className="flex items-center gap-1 cursor-pointer">
+
           <button onClick={() => router.back()}>
             <FiChevronLeft size={24} />
           </button>
@@ -202,6 +227,7 @@ export default function ChatConversationPage() {
           <h2 className="text-lg font-semibold">
             {chatPartner?.name || "Chat"}
           </h2>
+
         </div>
 
         <img
@@ -213,19 +239,26 @@ export default function ChatConversationPage() {
           alt="avatar"
           className="rounded-full w-9 h-9 object-cover"
         />
+
       </div>
 
-      {/* ================= MESSAGE AREA ================= */}
+
+      {/* MESSAGES */}
       <div className="flex-1 overflow-y-auto px-4 pt-[90px] pb-[120px] space-y-4">
+
         {chatMessages.map((m) => {
+
           const isMe = m.from === myId;
 
           return (
+
             <div
               key={m.id}
               className={`flex ${isMe ? "justify-end" : "justify-start"}`}
             >
+
               <div className="max-w-[75%]">
+
                 <div
                   className={`px-4 py-3 rounded-2xl ${
                     isMe
@@ -243,15 +276,21 @@ export default function ChatConversationPage() {
                 >
                   {formatTime(m.createdAt)}
                 </div>
+
               </div>
+
             </div>
+
           );
+
         })}
 
         <div ref={bottomRef} />
+
       </div>
 
-      {/* ================= INPUT ================= */}
+
+      {/* INPUT */}
       <div className="fixed bottom-10 left-0 right-0 max-w-[479px] mx-auto bg-[#071F36] border-t border-white/10 px-4 pt-6 pb-14 flex items-center gap-3">
 
         <input
@@ -267,6 +306,7 @@ export default function ChatConversationPage() {
         >
           <FiSend size={18} />
         </button>
+
       </div>
 
     </div>

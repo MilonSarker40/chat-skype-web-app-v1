@@ -4,10 +4,16 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useFriendStore } from "@/store/friendStore"
 import { useGlobalFriendStore } from "@/store/globalFriendStore"
+import { useAuthStore } from "@/store/authStore"
+import { useChatStore } from "@/store/chat.store"
 
 export default function Sidebar() {
 
   const router = useRouter()
+
+  const token = useAuthStore((s) => s.token)
+
+  const connectSocket = useChatStore((s) => s.connectSocket)
 
   const {
     friends,
@@ -25,16 +31,37 @@ export default function Sidebar() {
   } = useGlobalFriendStore()
 
   const [search, setSearch] = useState("")
+  const [showSearch, setShowSearch] = useState(false)
 
+  /* =========================
+     FETCH FRIENDS
+  ========================= */
   useEffect(() => {
     fetchFriends()
   }, [])
+
+  /* =========================
+     INIT WEBSOCKET
+  ========================= */
+  useEffect(() => {
+
+    if (!token) return
+
+    connectSocket(token)
+
+  }, [token, connectSocket])
+
 
   const handleSearch = (value: string) => {
 
     setSearch(value)
 
-    if (value.length > 1) {
+    if (value.length === 0) {
+      searchUsers("")
+      return
+    }
+
+    if (value.length >= 1) {
       searchUsers(value)
     }
   }
@@ -56,17 +83,22 @@ export default function Sidebar() {
 
       </div>
 
+
       {/* SEARCH */}
       <div className="mb-6 relative">
 
         <input
           value={search}
+          onFocus={() => {
+            setShowSearch(true)
+            searchUsers("")
+          }}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder="Search users..."
           className="w-full h-[44px] bg-[#f3f4f6] rounded-xl px-4 text-sm outline-none"
         />
 
-        {search.length > 1 && (
+        {showSearch && (
 
           <div className="absolute top-[50px] left-0 w-full bg-white rounded-xl border shadow-xl z-50 max-h-[260px] overflow-y-auto">
 
@@ -111,10 +143,12 @@ export default function Sidebar() {
 
                 </div>
 
+
                 {/* ACTION BUTTONS */}
                 <div>
 
                   {user.isFriend && (
+
                     <button
                       onClick={() => {
 
@@ -122,26 +156,33 @@ export default function Sidebar() {
 
                         router.push(`/chat/${user.id}`)
 
+                        setShowSearch(false)
+                        setSearch("")
                       }}
                       className="text-xs bg-green-500 text-white px-3 py-1 rounded-full"
                     >
                       Chat
                     </button>
+
                   )}
 
                   {user.isIncomingRequest && (
+
                     <button
-                      onClick={() => acceptRequest(user.id)}
+                      onClick={() => acceptRequest(user.email)}
                       className="text-xs bg-blue-500 text-white px-3 py-1 rounded-full"
                     >
                       Accept
                     </button>
+
                   )}
 
                   {user.isRequestSent && (
+
                     <span className="text-xs text-orange-500">
                       Requested
                     </span>
+
                   )}
 
                   {!user.isFriend &&
@@ -149,7 +190,7 @@ export default function Sidebar() {
                     !user.isIncomingRequest && (
 
                       <button
-                        onClick={() => sendRequest(user.id)}
+                        onClick={() => sendRequest(user.email)}
                         className="text-xs bg-orange-500 text-white px-3 py-1 rounded-full"
                       >
                         Add
@@ -169,6 +210,7 @@ export default function Sidebar() {
 
       </div>
 
+
       {/* FILTER */}
       <div className="flex gap-3 mb-8">
 
@@ -186,10 +228,12 @@ export default function Sidebar() {
 
       </div>
 
+
       {/* FRIEND LIST */}
       <p className="text-xs text-gray-400 mb-4">
         My Friends
       </p>
+
 
       {friends.length === 0 && (
 

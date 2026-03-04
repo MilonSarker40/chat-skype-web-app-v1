@@ -24,17 +24,28 @@ export const useGlobalFriendStore = create<State>((set) => ({
   users: [],
   loading: false,
 
-  searchUsers: async (query) => {
+  searchUsers: async (query = "") => {
     try {
+      set({ loading: true })
+
       const res = await api.get("/users/friends/skype")
 
-      const filtered = res.data.filter((u: any) =>
-        u.name.toLowerCase().includes(query.toLowerCase())
-      )
+      let data = res.data
 
-      set({ users: filtered })
+      if (query) {
+        data = data.filter((u: any) =>
+          u.name.toLowerCase().includes(query.toLowerCase())
+        )
+      }
+
+      set({
+        users: data.slice(0, 10), // first 10 users
+        loading: false,
+      })
+
     } catch (err) {
       console.log("Search error", err)
+      set({ loading: false })
     }
   },
 
