@@ -16,14 +16,16 @@ export default function AuthGuard({
   const token = useAuthStore((s) => s.token)
   const hasHydrated = useAuthStore((s) => s.hasHydrated)
 
-  useEffect(() => {
+  const publicRoutes = ["/login", "/register"]
 
+  useEffect(() => {
     if (!hasHydrated) return
 
-    if (!token && pathname !== "/login") {
+    const isPublicRoute = publicRoutes.includes(pathname)
+
+    if (!token && !isPublicRoute) {
       router.replace("/login")
     }
-
   }, [token, pathname, router, hasHydrated])
 
   if (!hasHydrated) return null
