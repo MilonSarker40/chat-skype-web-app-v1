@@ -99,8 +99,9 @@ export default function Sidebar() {
       searchUsers(value)
     }
   }
-
-  return (
+  console.log("Sidebar token:", token)
+  console.log("Sidebar friends:", friends)
+  return token && (
 
     <div className="w-[360px] bg-white shadow-[1px_0px_0px_0px_#00000014] px-6 py-6 overflow-y-auto relative">
 

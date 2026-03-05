@@ -49,7 +49,7 @@ export default function Register() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full mb-6 px-4 py-2 border rounded-lg"
+          className="w-full mb-6 px-4 py-2 border rounded-lg text-gray-500"
           onChange={(e) =>
             setForm({ ...form, password: e.target.value })
           }
@@ -62,7 +62,7 @@ export default function Register() {
           {loading ? "Creating..." : "Register"}
         </button>
 
-        <p className="text-sm mt-4">
+        <p className="text-sm mt-4 text-gray-300">
           Already have account?{" "}
           <Link href="/login" className="text-orange-500">
             Login

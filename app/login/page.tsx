@@ -23,14 +23,14 @@ export default function Login() {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-xl shadow w-[400px]"
       >
-        <h2 className="text-xl font-semibold mb-6">
+        <h2 className="text-xl font-semibold mb-6 text-gray-500">
           Login
         </h2>
 
         <input
           type="email"
           placeholder="Email"
-          className="w-full mb-4 px-4 py-2 border rounded-lg"
+          className="w-full mb-4 px-4 py-2 border rounded-lg text-gray-400"
           onChange={(e) =>
             setForm({ ...form, email: e.target.value })
           }
@@ -39,7 +39,7 @@ export default function Login() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full mb-6 px-4 py-2 border rounded-lg"
+          className="w-full mb-6 px-4 py-2 border rounded-lg text-gray-400"
           onChange={(e) =>
             setForm({ ...form, password: e.target.value })
           }
@@ -52,8 +52,8 @@ export default function Login() {
           {loading ? "Logging..." : "Login"}
         </button>
 
-        <p className="text-sm mt-4">
-          Don't have account?{" "}
+        <p className="text-sm mt-4 ">
+          <span className="text-gray-400">  Don't have account?{" "}</span>
           <Link href="/register" className="text-orange-500">
             Register
           </Link>

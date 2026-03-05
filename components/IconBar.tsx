@@ -1,3 +1,5 @@
+'use client'
+import { useAuthStore } from "@/store/authStore"
 import {
   MessageCircle,
   Phone,
@@ -10,7 +12,10 @@ import {
 import Image from "next/image"
 
 export default function IconBar() {
-  return (
+
+  const token = useAuthStore((s) => s.token)
+
+  return token && (
     <div className="w-[72px] bg-white border-r border-[#ebebeb] flex flex-col items-center py-8">
 
       <div className="mb-14">
