@@ -24,14 +24,14 @@ export default function Register() {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-xl shadow w-[400px]"
       >
-        <h2 className="text-xl font-semibold mb-6">
+        <h2 className="text-xl font-semibold mb-6 text-gray-700">
           Create Account
         </h2>
 
         <input
           type="text"
           placeholder="Name"
-          className="w-full mb-4 px-4 py-2 border rounded-lg"
+          className="w-full mb-4 px-4 py-2 border rounded-lg text-gray-500"
           onChange={(e) =>
             setForm({ ...form, name: e.target.value })
           }
@@ -40,7 +40,7 @@ export default function Register() {
         <input
           type="email"
           placeholder="Email"
-          className="w-full mb-4 px-4 py-2 border rounded-lg"
+          className="w-full mb-4 px-4 py-2 border rounded-lg text-gray-500"
           onChange={(e) =>
             setForm({ ...form, email: e.target.value })
           }
